@@ -25,7 +25,7 @@ hydration levels.
 * [FitBit Fitness Tracker Data](https://www.kaggle.com/datasets/arashnic/fitbit) (CC0: Public Domain, dataset made available by [Mobius](https://www.kaggle.com/arashnic): This Kaggle data set contains personal fitness tracker from thirty fitbit users. Thirty eligible Fitbit users consented to the submission of personal tracker data, including minute-level output for physical activity, heart rate, and sleep monitoring. It includes information about daily activity, steps, and heart rate that can be used to explore users’ habits.
   
 ## Documentation of the analysis
-* Here is the summary of the analysis and the how behind my analysis: https://ngctramnl.github.io/smart-devices/
+* Here is the summary of the analysis and the how behind my analysis: <https://ngctramnl.github.io/smart-devices/>
 ## Suggestions
 * There is a positive relationship between total minutes asleep and total time in bed. The company can use these trends to market the wellness watch "Time" as a way to track total minutes asleep and suggest needed time in bed so that woman can achieve their sleep needs.
 * The marketing team can position the "Leaf" tracker as a way to notify woman who sleep more than their needs to be more active during the days to achieve their health and fitness goals.
