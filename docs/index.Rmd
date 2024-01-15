@@ -1,0 +1,174 @@
+---
+title: "Smart devices case study"
+output: html_document
+---
+
+## Loading libraries
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+```
+
+
+## Loading CSV files
+Create dataframes for daily activity, daily steps, daily calories, sleep day datasets.
+
+```{r message=FALSE, warning=FALSE}
+setwd("C:/Users/Admin/Documents/GitHub/Smart-devices/")
+daily_activity <- read.csv("dailyActivity_merged.csv")
+daily_steps <- read.csv("dailySteps_merged.csv")
+daily_calories <- read.csv("dailyCalories_merged.csv")
+sleep_day <- read.csv("sleepDay_merged.csv") 
+```
+
+## Exploring a few key tables
+
+Take a look at the tables.
+```{r}
+head(daily_activity)
+head(daily_steps)
+head(daily_calories)
+head(sleep_day)
+```
+
+Identify all the columns in the daily_activity data.
+```{r}
+colnames(daily_activity)
+```
+
+Identify all the columns in the sleep data.
+```{r}
+colnames(sleep_day)
+```
+
+## Understanding some summary statistics
+How many unique participants are there in each dataframe? 
+
+```{r distinct users}
+n_distinct(daily_activity$Id)
+n_distinct(sleep_day$Id)
+n_distinct(daily_steps$Id)
+n_distinct(daily_calories$Id)
+```
+There are more paticipants in the daily activity, steps, calories dataset (33) than the sleep dataset (24).
+
+How many observations are there in each dataframe?
+```{r observations}
+nrow(daily_activity)
+nrow(sleep_day)
+nrow(daily_steps)
+nrow(daily_calories)
+```
+Inspect the dataframes.
+```{r}
+str(daily_activity)
+str(sleep_day)
+str(daily_steps)
+str(daily_calories)
+```
+The id columns are now num, so I convert them to character so that they can stack correctly and I can join them later on.
+
+```{r message=FALSE, warning=FALSE}
+daily_activity <-  mutate(daily_activity, Id= as.character(Id))
+sleep_day <-  mutate(sleep_day, Id = as.character(Id))
+daily_steps <-  mutate(daily_steps, Id = as.character(Id))
+daily_calories <-  mutate(daily_calories, Id = as.character(Id))
+```
+
+I have a look at summary statistics about each data.
+
+For the daily activity dataframe:
+```{r}
+daily_activity %>%  
+  select(TotalSteps,
+         TotalDistance,
+         SedentaryMinutes) %>%
+  summary()
+```
+Key findings:
+
+* The average sedentary time is 991 minutes (~16 hour).
+
+* Participants walk 7638 steps a day on average which is more than the average American (3000-4000 steps).
+
+
+For the sleep dataframe:
+```{r}
+sleep_day %>%  
+  select(TotalSleepRecords,
+  TotalMinutesAsleep,
+  TotalTimeInBed) %>%
+  summary()
+```
+Key findings:
+
+* There are 3 sleep records on maximum a day.
+
+* The average time asleep is 419 minutes while the average time in bed is 458.
+
+* This sample of people's activities indicates that people's time in bed is more than their actual sleep time.
+
+## Plotting a few explorations
+
+What's the relationship between steps taken in a day and sedentary minutes? 
+
+```{r}
+ggplot(daily_activity, aes(x=TotalSteps, y=SedentaryMinutes)) + geom_point()+
+  geom_smooth(formula = y ~ x, method="lm", se = FALSE)
+```
+
+```{r}
+# correlation test
+cor.test(daily_activity$TotalSteps, daily_activity$SedentaryMinutes)
+```
+
+Steps taken in a day have a negative relationship with sedentary minutes and the relationship is statistically significant.
+
+What's the relationship between minutes asleep and time in bed?
+
+```{r}
+ggplot(data=sleep_day, aes(x=TotalMinutesAsleep, y=TotalTimeInBed)) + geom_point() +
+  geom_smooth(formula = y ~ x,method="lm", se=FALSE)
+```
+
+There is a positive relationship between total minutes asleep and total time in bed. The company can use this trend to market the wellness watch "Time" as a way to track total minutes asleep and suggest needed time in bed so that woman can achieve their desired sleep time.
+
+## Merging these two datasets together
+
+```{r message=FALSE, warning=FALSE}
+combined_data <- merge(sleep_day, daily_activity, by="Id")
+```
+
+Take a look at how many participants are in this data set.
+
+```{r}
+n_distinct(combined_data$Id)
+```
+
+There were more participant Ids in the daily activity dataset that have been filtered out using merge. So I use 'outer_join' to keep those in the dataset. 
+
+```{r message=FALSE, warning=FALSE}
+combined_data <- full_join(sleep_day, daily_activity, by="Id")
+n_distinct(combined_data$Id)
+```
+
+Do participants who sleep more also take more steps or fewer steps per day?
+
+```{r message=FALSE, warning=FALSE}
+ggplot(combined_data, aes(x=TotalMinutesAsleep, y=TotalSteps)) + geom_point() +
+  geom_smooth(formula = y ~ x, method="lm", se=FALSE)
+```
+
+```{r}
+# correlation test
+cor.test(combined_data$TotalSteps, combined_data$TotalMinutesAsleep)
+```
+
+Participants who sleep more also take fewer steps per day. So the company can use this findings to help inform the marketing strategy of how you position the wellness tracker "Leaf". This tracker can incorporate notice for woman who sleep more than their needs to be more active during the days to achieve their health and fitness goals.
+
+## Suggestions
+* There is a positive relationship between total minutes asleep and total time in bed. The company can use these trends to market the wellness watch "Time" as a way to track total minutes asleep and suggest needed time in bed so that woman can achieve their sleep needs.
+
+* The marketing team can position the "Leaf" tracker as a way to notify woman who sleep more than their needs to be more active during the days to achieve their health and fitness goals.
